@@ -2,19 +2,25 @@
 #include "pins_mvt.h"
 #include "turn_and_go.h"
 #include "PWMServo.h"
+#include "commFrame.h"
+#include "commKeywords.h"
+#include "mvtActions.h"
+#include "debug.h"
 
 PWMServo ServoGauche;
 PWMServo ServoDroite;
+PWMServo Servo3;
+
 TurnAndGo turn_and_go;
 float distance = -500;
 
-void ServosUp();
-void ServosDown();
-
 bool go = false;
 
-int state = 0; //variable d'etat pour direction de mouvement du robot
+commFrame stratFrame(FRAMESTARTER);
+uint8_t moveAvailable = 0;
+bool moveFinished = false;
 
+float X, Y;
 void setup() {
   Strat.begin(9600); //init canal comm Strat <-> mvt
   Serial.begin(9600);
@@ -45,7 +51,7 @@ void setup() {
   digitalWrite(LED1,HIGH);
   digitalWrite(LED2,HIGH);
 
-  ServosUp();
+
   while(!go){
     //Attente du message GO
     if(Strat.available()>0 and Strat.read()==0x56){
@@ -61,49 +67,30 @@ void setup() {
 
 void loop() {
 
-
-  // put your main code here, to run repeatedly:
-  if (turn_and_go.run() == STOP){
-    delay(1000);
-    switch (state)
-    {
-    case 0:
-      turn_and_go.goTo(distance,0);
-      ServosDown();
-      state++;
-      break;
-
-    case 1:
-      turn_and_go.goTo(distance,distance);
-      state++;
-      ServosUp();
-      break;
-
-    case 2:
-      turn_and_go.goTo(0,distance);
-      ServosDown();
-      state++;
-      break;
-
-    case 3:
-      turn_and_go.goTo(0,0);
-      ServosUp();
-      state=0;
-      break;
-    default:
-      break;
-    }
-    
-    //distance = -distance;
+  //Verification etat de rotation des steppers
+  if(turn_and_go.run()==STOP){
+    moveFinished = true;
   }
+  //Ecoute du port serie
+  if(Strat.available()>0){
+    #ifdef debug
+        Serial.println("MSG! ");
+      #endif
+    if(Strat.read()==stratFrame.getStarter()){
+      //Trame detectée
+      while(Strat.available()==0); //Attente de la reception de la suite du message
+      delay(20);
+      readFrame(stratFrame);
+      actionsFSM(stratFrame,ServoGauche,ServoDroite,Servo3,turn_and_go,moveAvailable,moveFinished, X, Y);
+      }
+    }
+  else{
+    if(moveFinished and moveAvailable == 1){
+      turn_and_go.goTo(X,Y);
+    }
+  }
+  
+  
+  turn_and_go.run(); //permet de faire tourner l'odometrie
 }
-
-void ServosUp(){
-  ServoGauche.write(140);
-  ServoDroite.write(140);
-}
-
-void ServosDown(){
-  ServoGauche.write(50);
-  ServoDroite.write(50);
-}
+  
