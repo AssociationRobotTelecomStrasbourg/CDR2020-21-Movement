@@ -41,13 +41,9 @@ void setup() {
   }
   digitalWrite(13,LOW);
   
-
-
   pinMode(LED1, OUTPUT);
   pinMode(LED2, OUTPUT);
 
-  
-  
   digitalWrite(LED1,HIGH);
   digitalWrite(LED2,HIGH);
 
@@ -61,21 +57,17 @@ void setup() {
       digitalWrite(13,HIGH);
     }
   }
-
-
 }
 
 void loop() {
-
   //Verification etat de rotation des steppers
   if(turn_and_go.run()==STOP){
     moveFinished = true;
   }
+
   //Ecoute du port serie
   if(Strat.available()>0){
-    #ifdef debug
-        Serial.println("MSG! ");
-      #endif
+
     if(Strat.read()==stratFrame.getStarter()){
       //Trame detectée
       while(Strat.available()==0); //Attente de la reception de la suite du message
@@ -91,6 +83,6 @@ void loop() {
   }
   
   
-  turn_and_go.run(); //permet de faire tourner l'odometrie
+  
 }
   
