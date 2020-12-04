@@ -72,8 +72,9 @@ void loop() {
       //Trame detectée
       while(Strat.available()==0); //Attente de la reception de la suite du message
       delay(20);
-      readFrame(stratFrame);
-      actionsFSM(stratFrame,ServoGauche,ServoDroite,Servo3,turn_and_go,moveAvailable,moveFinished, X, Y);
+      readFrame(stratFrame); //Lecture de la trame si detectee
+      //Action du robot en fonction de la trame decodee
+      actionsFSM(stratFrame,ServoGauche,ServoDroite,Servo3,turn_and_go,moveAvailable,moveFinished, X, Y); 
       }
     }
   else{
