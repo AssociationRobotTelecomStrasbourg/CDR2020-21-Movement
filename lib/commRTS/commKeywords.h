@@ -15,4 +15,10 @@ entre le processeur stratégie et le processeur mouvement*/
 #define ID_ACCEL_CONF 0x73
 #define ID_SERVO 0x57
 
+#define ID_REQUEST_COORDS 0x59
+
+#define ID_XY_DONE 0x61
+
+#define ID_FRAME_ERROR 0xFE
+
 #endif

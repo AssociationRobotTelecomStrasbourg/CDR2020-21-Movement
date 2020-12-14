@@ -16,7 +16,13 @@ float distance = -500;
 
 bool go = false;
 
+unsigned long time;
+unsigned long delai = 250;
+bool led13_state;
+
 commFrame stratFrame(FRAMESTARTER);
+
+
 uint8_t moveAvailable = 0;
 bool moveFinished = false;
 
@@ -47,6 +53,8 @@ void setup() {
   digitalWrite(LED1,HIGH);
   digitalWrite(LED2,HIGH);
 
+  turn_and_go.goTo(10,10); //Ligne d'initialisation des moteurs
+  //Necessaire pour piloter les moteurs dans la loop, raison inconnue
 
   while(!go){
     //Attente du message GO
@@ -61,29 +69,38 @@ void setup() {
 
 void loop() {
   //Verification etat de rotation des steppers
+  digitalWrite(13, led13_state);
+  if(millis()-time > delai){
+    time = millis();
+    led13_state = !led13_state;
+  }
   if(turn_and_go.run()==STOP){
     moveFinished = true;
   }
 
   //Ecoute du port serie
   if(Strat.available()>0){
-
+  Serial.println("MSG RECUE");
     if(Strat.read()==stratFrame.getStarter()){
       //Trame detectée
+      Serial.println("TRAME RECUE");
       while(Strat.available()==0); //Attente de la reception de la suite du message
       delay(20);
       readFrame(stratFrame); //Lecture de la trame si detectee
-      //Action du robot en fonction de la trame decodee
-      actionsFSM(stratFrame,ServoGauche,ServoDroite,Servo3,turn_and_go,moveAvailable,moveFinished, X, Y); 
+      //Verification du checksum:
+      if(calculateChecksum(stratFrame) == stratFrame.getChecksum()){
+        //Action du robot en fonction de la trame decodee
+        actionsFSM(stratFrame,ServoGauche,ServoDroite,Servo3,turn_and_go,moveAvailable,moveFinished, X, Y);
+      } 
+      else{
       }
     }
+  }
   else{
     if(moveFinished and moveAvailable == 1){
       turn_and_go.goTo(X,Y);
     }
   }
-  
-  
-  
 }
+
   

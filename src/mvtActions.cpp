@@ -40,8 +40,11 @@ TurnAndGo &steppers, uint8_t &moveAvailable, bool &moveFinished, float &X, float
         /* code */
         #ifdef debugActions
             Serial.println("STEPPER XY!");
+            Serial.print("moveFinished: ");
+            Serial.println(moveFinished);
         #endif
         if(moveFinished){
+            Serial.println("GOTO SENT");
             moveFinished = false;
             steppers.goTo(X,Y);
         }

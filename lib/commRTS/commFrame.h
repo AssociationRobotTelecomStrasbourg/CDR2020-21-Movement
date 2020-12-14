@@ -8,6 +8,7 @@ private:
     uint8_t _framestarter;
     uint8_t _id;
     float _value2,_value1,_value0;
+    float _checksum;
 
 public:
     commFrame(const uint8_t framestarter);
@@ -19,6 +20,9 @@ public:
     uint8_t getStarter();
     uint8_t getId();
     void getValues(float &value2, float &value1, float &value0);
+
+    void setChecksum(const float checksum);
+    float getChecksum();
 };
 
 void divideFloat(const float value, uint8_t &byte3, uint8_t &byte2, uint8_t &byte1, uint8_t &byte0); //divides 32bits float into 4*8bits unsigned int
@@ -26,4 +30,6 @@ void formFloat(float &value, const uint8_t &byte3, const uint8_t &byte2, const u
 void sendFrame(commFrame frame);
 void readFrame(uint8_t &ID, float &value2, float &value1, float &value0);
 void readFrame(commFrame &frame);
+float calculateChecksum(commFrame &frame);
+
 #endif

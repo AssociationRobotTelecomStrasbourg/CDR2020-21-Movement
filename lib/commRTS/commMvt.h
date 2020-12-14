@@ -16,4 +16,5 @@ void stop(commFrame &frame);
 void speedConf(const float speed, commFrame &frame);
 void accelConf(const float accel, commFrame &frame);
 
+void moveXYDone(); //Allows movt to inform strat that last movement is finished
 #endif
