@@ -87,6 +87,20 @@ void loop() {
       while(Strat.available()==0); //Attente de la reception de la suite du message
       delay(20);
       readFrame(stratFrame); //Lecture de la trame si detectee
+      float value2,value1,value0;
+      stratFrame.getValues(value2,value1,value0);
+      float checksum = stratFrame.getChecksum();
+      Serial.println("Affichage trame recue:");
+      Serial.println(stratFrame.getId());
+      Serial.print(value2,HEX);
+      Serial.print("|");
+      Serial.print(value1,HEX);
+      Serial.print("|");
+      Serial.println(value0,HEX);
+      Serial.print("Checksum inclue: ");
+      Serial.println(checksum);
+      Serial.print("Checksum calculee: ");
+      Serial.println(calculateChecksum(stratFrame));
       //Verification du checksum:
       if(calculateChecksum(stratFrame) == stratFrame.getChecksum()){
         //Action du robot en fonction de la trame decodee
