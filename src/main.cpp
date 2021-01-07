@@ -80,41 +80,43 @@ void loop() {
 
   //Ecoute du port serie
   if(Strat.available()>0){
-  Serial.println("MSG RECUE");
+
+  #ifdef debug
+    Serial.println("MSG RECUE");
+  #endif
+
     if(Strat.read()==stratFrame.getStarter()){
       //Trame detectée
-      Serial.println("TRAME RECUE");
+
+      #ifdef debug
+        Serial.println("TRAME RECUE");
+      #endif
+
       while(Strat.available()==0); //Attente de la reception de la suite du message
       delay(20);
       readFrame(stratFrame); //Lecture de la trame si detectee
-      float value2,value1,value0;
-      stratFrame.getValues(value2,value1,value0);
-      float checksum = stratFrame.getChecksum();
-      Serial.println("Affichage trame recue:");
-      Serial.println(stratFrame.getId());
-      Serial.print(value2,HEX);
-      Serial.print("|");
-      Serial.print(value1,HEX);
-      Serial.print("|");
-      Serial.println(value0,HEX);
-      Serial.print("Checksum inclue: ");
-      Serial.println(checksum);
-      Serial.print("Checksum calculee: ");
-      Serial.println(calculateChecksum(stratFrame));
+
+      #ifdef debug
+        affichageFrame(stratFrame);
+      #endif
+
       //Verification du checksum:
       if(calculateChecksum(stratFrame) == stratFrame.getChecksum()){
         //Action du robot en fonction de la trame decodee
         actionsFSM(stratFrame,ServoGauche,ServoDroite,Servo3,turn_and_go,moveAvailable,moveFinished, X, Y);
       } 
       else{
+        //Rien pour le moment...
       }
     }
   }
   else{
     if(moveFinished and moveAvailable == 1){
       turn_and_go.goTo(X,Y);
+      //Si on avait un deplacement en attente, on y va...
     }
   }
+
 }
 
   
